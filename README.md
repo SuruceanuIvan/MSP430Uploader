@@ -634,7 +634,7 @@ To convert a file into the Intel HEX format, the following steps are followed:
 </ul>
 
 ## Bibliography
- 1. Datasheet (Datasheet MSP430G2x53/MSP430G2x13 MIXED SIGNAL MICROCONTROLLER) for TI MSP430G2553 - <a href="https://www.ti.com/lit/ds/symlink/msp430g2553.pdf">https://www.ti.com/lit/ds/symlink/msp430g2553.pdf</a>
+ 1. Datasheet (Datasheet MSP430G2x53/MSP430G2x13 MIXED SIGNAL MICROCONTROLLER) for TI MSP430G2553 - <a href="https://www.ti.com/lit/ds/symlink/msp430g2553.pdf" target="_blank">https://www.ti.com/lit/ds/symlink/msp430g2553.pdf</a>
  2. Tutorial for working in BSL mode (User’s Guide MSP430™ Flash Devices Bootloader (BSL)) - <a href="https://www.ti.com/lit/ug/slau319af/slau319af.pdf">https://www.ti.com/lit/ug/slau319af/slau319af.pdf</a>
  3. General documentation of the family MSP430 (MSP430F2xx, MSP430G2xx Family User’s Guide) - <a href="https://www.ti.com/lit/ug/slau144k/slau144k.pdf">https://www.ti.com/lit/ug/slau144k/slau144k.pdf</a>
  4. Intel-Hex format (GENERAL: Intel HEX File Format) - <a href="https://developer.arm.com/documentation/ka003292/latest/">https://developer.arm.com/documentation/ka003292/latest/</a>
