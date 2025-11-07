@@ -639,4 +639,9 @@ To convert a file into the Intel HEX format, the following steps are followed:
  3. General documentation of the family MSP430 (MSP430F2xx, MSP430G2xx Family User’s Guide) - <a href="https://www.ti.com/lit/ug/slau144k/slau144k.pdf">https://www.ti.com/lit/ug/slau144k/slau144k.pdf</a>
  4. Intel-Hex format (GENERAL: Intel HEX File Format) - <a href="https://developer.arm.com/documentation/ka003292/latest/">https://developer.arm.com/documentation/ka003292/latest/</a>
 
+## Software tools:
+ 1. CCS Integrated Development Environment (IDE) based on ECLIPSE (CCSTUDIO - Code Composer Studio™ integrateddevelopment environment (IDE)) - <a href="https://www.ti.com/tool/CCSTUDIO">https://www.ti.com/tool/CCSTUDIO</a>
+ Includes the high-performance TI-CGT compiler/assembler with a 16 kB code size limitation (TI code generation tools - C/C++ compilers and assembly language tools) -<a href="https://www.ti.com/tool/TI-CGT"> https://www.ti.com/tool/TI-CGT</a>
+ 2. Free, open-source C compiler, GCC, with no code size limitation (MSP430-GCC-OPENSOURCE) <a href="https://www.ti.com/tool/MSP430-GCC-OPENSOURCE">https://www.ti.com/tool/MSP430-GCC-OPENSOURCE</a>
+
 # Thanks!
