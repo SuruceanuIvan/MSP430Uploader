@@ -239,4 +239,116 @@ This circuit was designed to provide a modular and experimental platform for emb
 <h3>BSL</h3>
 <p>The <b>MSP430™ Bootloader</b> (BSL), formerly known as the “bootstrap loader,” <i>allows users to communicate with the integrated memory of the MSP430 microcontroller</i> (MCU) during prototyping, final production, and usage phases. Both the programmable memory (flash memory) and data memory (RAM) can be modified as needed. The bootloader should not be confused with bootstrap loader programs found in some digital signal processors (DSPs), which automatically load program code (and data) from external memory into the internal memory of the DSP.</p>
 	<p>To use the bootloader, a specific <b>BSL entry sequence</b> must be applied. An additional sequence of commands initiates the desired function. A bootloading session can be ended either by continuing execution at a user-defined program address or by a reset condition.</p>
+<h3>Commands</h3>
+<p>There are two categories of commands: commands that require a password and commands that do not require a password. Password protection ensures security for every command that allows direct or indirect access to data.
+</p>
+<h3>Unprotected commands</h3>
+<ul>
+<li>Password reception</li>
+<li>Mass Erase (erases the entire flash memory, including both main memory and information memory)</li>
+<li>Transmit BSL version</li>
+</ul>
+<h3>Protected commands</h3>
+<ul>
+	<li>Receiving a data block for programming flash memory, RAM, or peripherals</li>
+	<li>Transmitting a data block</li>
+	<li>Segment erase</li>
+	<li>Erase verification</li>
+	<li>Setting memory offset</li>
+	<li>Loading the program counter (PC) and starting user program</li>
+</ul>
+<h3>Data Frame</h3>
+<img width="997" height="434" alt="dataframe" src="https://github.com/user-attachments/assets/3abbbe1b-7b29-4c76-ad71-e0d1f5c8f42a" />
 
+<h2>Implementation of commands for efficient communication</h2>
+
+```c++
+bool sendCommandWithDelay(HANDLE hSerial, const unsigned char *command, int length) {
+    int i;
+    for (i = 0; i < length; i++)
+	{
+        if (!sendByteWithDelay(hSerial, command[i]))
+		{
+            return false;
+        }
+    }
+    Sleep(DELAY_AFTER_TRANSMIT); 
+    return true;
+}
+```
+One of the key functions in my project addresses communication with the MSP430 Bootloader. Initially, I encountered <b>timing issues</b> because the PC transmits data significantly faster than the microcontroller can process. To prevent data loss, this function implements a <b>controlled delay</b> between transmitted bytes, with the optimal delay determined experimentally. Additionally, the function sends data <b>byte by byte</b>, ensuring reliable delivery and synchronization with the microcontroller’s processing speed.
+
+<hr/>
+
+```cpp
+void sendSync(HANDLE hSerial)
+{
+    unsigned char sync[1]={0x80};
+    sendCommandWithDelay(hSerial,sync,1);
+}
+```
+This code transmits a <b>synchronization byte</b> to the Bootloader (BSL) to ensure proper alignment between the host PC and the microcontroller. Sending this byte establishes a known starting point for communication, preventing data corruption and enabling reliable command execution.
+
+<hr/>
+
+```cpp
+bool sendRXPassword(HANDLE hSerial,unsigned const char* pass)
+{
+    unsigned char rxPassword[64] = {0x80, 0x10, 0x24, 0x24, 0x00, 0x00, 0x00, 0x00};
+    unsigned short chksum;
+
+    for (int i = 8; i < 40; i++)
+    {
+        rxPassword[i] = pass[i-8];
+    }//end for
+
+    printf("Sending RX Password command octet cu octet:\n");
+
+    chksum=calculateChecksum(rxPassword,40);
+    rxPassword[40] = chksum & (0xFF);
+    rxPassword[41] = (chksum>>8) & (0xFF);
+
+    if (!sendCommandWithDelay(hSerial, rxPassword, 42))
+    {
+        printf("Eroare la trimiterea comenzii 'RX Password'!\n");
+        return false;
+    }//end if
+    printf("'RX Password' command sent successfully!\n");
+
+    unsigned char response[4];
+    int bytesRead = readResponse(hSerial, response, sizeof(response));
+
+    interpretResponse(response, bytesRead);
+
+    return true;
+}
+```
+This function is responsible for <b>transmitting the password</b> to the microcontroller. It leverages a structured data frame implementation for the <b>Rx Password command</b>, ensuring proper formatting and integrity. The program also calculates a checksum to comply with the data frame structure. Command transmission is handled using the previously described sendCommandWithDelay() function. Additionally, the readResponse() and interpretResponse() functions provide real-time feedback in the console, allowing the user to monitor success or error messages following password transmission.
+
+<hr/>
+
+```cpp
+void sendMassErase(HANDLE hSerial)
+{
+    unsigned short chksum;
+    unsigned char massErase[16] = {0x80, 0x18, 0x04, 0x04, 0xFF, 0xFF, 0x06, 0xA5};
+    printf("Sending 'Mass Erase' command:\n");
+
+    chksum=calculateChecksum(massErase,8);
+    massErase[8] = chksum & (0xFF);
+    massErase[9] = (chksum>>8) & (0xFF);
+
+    if (!sendCommandWithDelay(hSerial, massErase, 10))
+    {
+        printf("Eroare la trimiterea comenzii 'Mass Erase'!\n");
+        return;
+    }//end if
+
+    printf("'Mass Erase' command sent successfully!\n");
+
+    unsigned char response[2];
+    int bytesRead = readResponse(hSerial, response, sizeof(response));
+    interpretResponse(response, bytesRead);
+}
+```
+This function handles the erasure of the programmed code in the MSP430 microcontroller. It adheres to the data frame protocol to ensure proper command formatting and reliability. The function utilizes the previously described sendCommandWithDelay() for controlled transmission, while readResponse() and interpretResponse() manage real-time feedback, confirming successful execution or reporting errors
